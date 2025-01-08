@@ -1,0 +1,30 @@
+# Choosing and cleaning the dataset
+def preprocess_data(X, y):
+    """
+    Preprocesses the dataset by scaling features and encoding target labels.
+    """
+    # Flatten target labels and encode
+    label_encoder = LabelEncoder()
+    y = label_encoder.fit_transform(y)
+
+    # Scale features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Compute class weights for handling imbalance
+    class_weights = compute_class_weight('balanced', classes=np.unique(y), y=y)
+    class_weight_dict = dict(zip(np.unique(y), class_weights))
+
+    return X_scaled, y, label_encoder, class_weight_dict
+
+
+# Load the Dry Bean Dataset
+dry_bean = fetch_ucirepo(id=602)
+X = dry_bean.data.features
+y = dry_bean.data.targets
+
+# Preprocess the data
+X_scaled, y, label_encoder, class_weight_dict = preprocess_data(X, y)
+
+# Split the dataset
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
